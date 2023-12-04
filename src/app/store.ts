@@ -1,11 +1,19 @@
-import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit"
-import counterReducer from "../features/counter/counterSlice"
+import { combineSlices, configureStore, type Action, type ThunkAction } from "@reduxjs/toolkit"
+import { counterSlice, incrementAsyncEpic } from "../features/counter/counterSlice"
+import { createEpicMiddleware, combineEpics } from "redux-observable"
+
+const epicMiddleware = createEpicMiddleware()
+
+const reducer = combineSlices(counterSlice)
 
 export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-  },
+  reducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(epicMiddleware),
 })
+
+const rootEpic = combineEpics(incrementAsyncEpic)
+
+epicMiddleware.run(rootEpic)
 
 export type AppDispatch = typeof store.dispatch
 export type RootState = ReturnType<typeof store.getState>

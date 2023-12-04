@@ -1,5 +1,5 @@
 {
-  "name": "vite-template-redux",
+  "name": "vite-template-redux-observable",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,29 +14,31 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^1.8.1",
+    "@reduxjs/toolkit": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-redux": "^8.0.1"
+    "react-redux": "^9.0.0",
+    "redux-observable": "file://../redux-observable",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.2.0",
-    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.2.5",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
-    "@types/testing-library__jest-dom": "^5.14.5",
+    "@types/testing-library__jest-dom": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.0",
     "eslint": "^8.0.0",
     "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "jsdom": "^21.1.0",
-    "prettier": "^2.7.1",
-    "prettier-config-nick": "^1.0.2",
+    "eslint-plugin-prettier": "^5.0.1",
+    "jsdom": "^23.0.1",
+    "prettier": "^3.1.0",
+    "prettier-config-nick": "^1.0.8",
     "typescript": "^5.0.2",
-    "vite": "^4.0.0",
-    "vitest": "^0.30.1"
+    "vite": "^5.0.5",
+    "vitest": "^1.0.1"
   },
   "eslintConfig": {
     "extends": [
@@ -47,7 +49,7 @@
       "prettier"
     ],
     "rules": {
-      "prettier/prettier": "error",
+      "prettier/prettier": "off",
       "react/jsx-no-target-blank": "off"
     }
   },
