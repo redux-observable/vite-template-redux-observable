@@ -86,14 +86,14 @@ describe("incrementIfOddEpic", () => {
   it("should increment if odd", () => {
     marbleTest({
       epic: incrementIfOddEpic,
-      actions: "a-b-a",
-      states: "--t-t",
-      expected: "----b",
+      actions: "a-a",
+      states: "-t-",
+      expected: "--b",
       values: {
         a: incrementIfOdd(1),
         b: counterSlice.actions.incrementByAmount(1),
-        s: { counter: { value: 0 } }, // s is used for initial state so it doesn't have to be in the marble diagram
-        t: { counter: { value: 1 } },
+        s: { counter: { value: 0, status: "init" as const } }, // s is used for initial state so it doesn't have to be in the marble diagram
+        t: { counter: { value: 1, status: "init" as const } }, // pretend state got incremented
       },
     });
   });
