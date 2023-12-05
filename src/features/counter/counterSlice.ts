@@ -1,15 +1,7 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppEpic } from "../../app/store";
 import { fetchCount } from "./counterAPI";
-import {
-  catchError,
-  filter,
-  map,
-  mergeMap,
-  of,
-  startWith,
-  take,
-} from "rxjs";
+import { catchError, filter, map, mergeMap, of, startWith, take } from "rxjs";
 
 export interface CounterState {
   value: number;

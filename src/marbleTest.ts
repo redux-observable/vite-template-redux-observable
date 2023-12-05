@@ -1,9 +1,9 @@
-import { Epic, StateObservable } from "redux-observable"
-import { TestScheduler } from "rxjs/testing"
+import { Epic, StateObservable } from "redux-observable";
+import { TestScheduler } from "rxjs/testing";
 
 const assertDeepEquals = (actual: unknown, expected: unknown) => {
-  expect(actual).toEqual(expected)
-}
+  expect(actual).toEqual(expected);
+};
 
 export const marbleTest = <
   Input,
@@ -18,28 +18,25 @@ export const marbleTest = <
   values,
   dependencies,
 }: {
-  epic: Epic<Input, Output, State, Dependencies>
-  actions: string
-  states?: string
-  expected: string
-  values: Record<string, Input | Output | State>
-  dependencies?: Dependencies
+  epic: Epic<Input, Output, State, Dependencies>;
+  actions: string;
+  states?: string;
+  expected: string;
+  values: Record<string, Input | Output | State>;
+  dependencies?: Dependencies;
 }) => {
-  const testScheduler = new TestScheduler(assertDeepEquals)
+  const testScheduler = new TestScheduler(assertDeepEquals);
 
   testScheduler.run(({ hot, expectObservable }) => {
-    const action$ = hot(actions, values as Record<string, Input>)
+    const action$ = hot(actions, values as Record<string, Input>);
 
     const state$ = new StateObservable(
       hot(states, values as Record<string, State>),
-      values.s as State,
-    )
+      values.s as State
+    );
 
     const output$ = epic(action$, state$, dependencies as Dependencies);
 
-    expectObservable(output$).toBe(
-      expected,
-      values,
-    )
-  })
-}
+    expectObservable(output$).toBe(expected, values);
+  });
+};
