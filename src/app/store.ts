@@ -1,25 +1,32 @@
-import { combineSlices, configureStore, type Action, type ThunkAction } from "@reduxjs/toolkit"
-import { counterSlice, incrementAsyncEpic } from "../features/counter/counterSlice"
-import { createEpicMiddleware, combineEpics } from "redux-observable"
+import {
+  combineSlices,
+  configureStore,
+} from "@reduxjs/toolkit";
+import { Epic, combineEpics, createEpicMiddleware } from "redux-observable";
+import {
+  counterSlice,
+  incrementAsyncEpic,
+  incrementIfOddEpic,
+} from "../features/counter/counterSlice";
 
-const epicMiddleware = createEpicMiddleware()
+const reducer = combineSlices(counterSlice);
 
-const reducer = combineSlices(counterSlice)
+export type RootState = ReturnType<typeof reducer>;
+export type AppEpic = Epic<unknown, unknown, RootState>;
+
+const epicMiddleware = createEpicMiddleware<unknown, unknown, RootState>();
+
+const rootEpic = combineEpics(
+  incrementAsyncEpic,
+  incrementIfOddEpic
+);
 
 export const store = configureStore({
   reducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(epicMiddleware),
-})
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(epicMiddleware),
+});
 
-const rootEpic = combineEpics(incrementAsyncEpic)
+epicMiddleware.run(rootEpic);
 
-epicMiddleware.run(rootEpic)
-
-export type AppDispatch = typeof store.dispatch
-export type RootState = ReturnType<typeof store.getState>
-export type AppThunk<ReturnType = void> = ThunkAction<
-  ReturnType,
-  RootState,
-  unknown,
-  Action<string>
->
+export type AppDispatch = typeof store.dispatch;

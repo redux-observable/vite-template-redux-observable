@@ -1,26 +1,39 @@
-import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "../../app/store"
-import { fetchCount } from "./counterAPI"
-import { Epic } from "redux-observable"
-import { catchError, filter, map, mergeMap, of, startWith, withLatestFrom } from "rxjs"
+import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AppEpic } from "../../app/store";
+import { fetchCount } from "./counterAPI";
+import {
+  catchError,
+  filter,
+  map,
+  mergeMap,
+  of,
+  startWith,
+  take,
+} from "rxjs";
 
 export interface CounterState {
-  value: number
-  status: "idle" | "loading" | "failed"
+  value: number;
+  status: "idle" | "loading" | "failed";
 }
 
 const initialState: CounterState = {
   value: 0,
   status: "idle",
-}
+};
 
-export const incrementAsync = createAction<number>("counter/incrementAsync")
-export const incrementAsyncPending = createAction("counter/incrementAsyncPending")
-export const incrementAsyncFulfilled = createAction<number>("counter/incrementAsyncFulfilled")
-export const incrementAsyncRejected = createAction<string>("counter/incrementAsyncRejected")
+export const incrementAsync = createAction<number>("counter/incrementAsync");
+export const incrementAsyncPending = createAction(
+  "counter/incrementAsyncPending"
+);
+export const incrementAsyncFulfilled = createAction<number>(
+  "counter/incrementAsyncFulfilled"
+);
+export const incrementAsyncRejected = createAction<string>(
+  "counter/incrementAsyncRejected"
+);
 
 // The function below is called an epic and allows us to map an observable of actions to a new observable of actions.
-export const incrementAsyncEpic: Epic = (action$) =>
+export const incrementAsyncEpic: AppEpic = (action$) =>
   action$.pipe(
     // all epics receive all actions, but we're only interested in incrementAsync.
     filter(incrementAsync.match),
@@ -33,10 +46,11 @@ export const incrementAsyncEpic: Epic = (action$) =>
         // emit this action first
         startWith(incrementAsyncPending()),
         // continue with this observable in case of an error
-        catchError((error) => of(incrementAsyncRejected(error.message))),
-      ),
-    ),
-  )
+        // the mocked api doesn't throw errors, but a real api probably would
+        catchError((_error: unknown) => of(incrementAsyncRejected("failed")))
+      )
+    )
+  );
 
 export const counterSlice = createSlice({
   name: "counter",
@@ -48,14 +62,14 @@ export const counterSlice = createSlice({
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
-      state.value += 1
+      state.value += 1;
     },
     decrement: (state) => {
-      state.value -= 1
+      state.value -= 1;
     },
     // Use the PayloadAction type to declare the contents of `action.payload`
     incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.value += action.payload
+      state.value += action.payload;
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -63,33 +77,37 @@ export const counterSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(incrementAsyncPending, (state) => {
-        state.status = "loading"
+        state.status = "loading";
       })
       .addCase(incrementAsyncFulfilled, (state, action) => {
-        state.status = "idle"
-        state.value += action.payload
+        state.status = "idle";
+        state.value += action.payload;
       })
       .addCase(incrementAsyncRejected, (state) => {
-        state.status = "failed"
-      })
-    },
-    // The function below is called a selector and allows us to select a value from
-    // the state. Selectors can also be defined inline where they're used instead of
-    // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
+        state.status = "failed";
+      });
+  },
+  // The function below is called a selector and allows us to select a value from
+  // the state. Selectors can also be defined inline where they're used instead of
+  // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
   selectors: {
     selectCount: (state) => state.value,
   },
-})
+});
 
 // We can also read state in epics.
 // Here's an example of conditionally dispatching actions based on current state.
-export const incrementIfOdd = createAction<number>("counter/incrementIfOdd")
+export const incrementIfOdd = createAction<number>("counter/incrementIfOdd");
 
-export const incrementIfOddEpic: Epic<unknown, unknown, RootState> = (action$, state$) =>
+export const incrementIfOddEpic: AppEpic = (action$, state$) =>
   action$.pipe(
     filter(incrementIfOdd.match),
-    withLatestFrom(state$),
-    map(([action, state]) => [action.payload, counterSlice.selectors.selectCount(state)] as const),
-    filter(([amount, currentValue]) => currentValue % 2 === 1),
-    map(([amount]) => counterSlice.actions.incrementByAmount(amount)),
-  )
+    mergeMap((action) =>
+      state$.pipe(
+        take(1),
+        map(counterSlice.selectors.selectCount),
+        filter((count) => count % 2 === 1),
+        map(() => counterSlice.actions.incrementByAmount(action.payload))
+      )
+    )
+  );

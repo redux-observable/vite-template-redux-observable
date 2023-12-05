@@ -1,15 +1,15 @@
 import { Epic, StateObservable } from "redux-observable"
 import { TestScheduler } from "rxjs/testing"
 
-const assertDeepEquals = (actual: any, expected: any) => {
+const assertDeepEquals = (actual: unknown, expected: unknown) => {
   expect(actual).toEqual(expected)
 }
 
 export const marbleTest = <
-  Input extends unknown,
+  Input,
   Output extends Input = Input,
   State = void,
-  Dependencies = any,
+  Dependencies = unknown,
 >({
   epic,
   actions,

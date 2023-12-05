@@ -1,19 +1,15 @@
-import { useState } from "react"
-
-import { useAppSelector, useAppDispatch } from "../../app/hooks"
-import {
-  incrementAsync,
-  incrementIfOdd,
-  counterSlice,
-} from "./counterSlice"
-import styles from "./Counter.module.css"
+/* eslint-disable react-perf/jsx-no-new-function-as-prop */
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import styles from "./Counter.module.css";
+import { counterSlice, incrementAsync, incrementIfOdd } from "./counterSlice";
 
 export function Counter() {
-  const count = useAppSelector(counterSlice.selectors.selectCount)
-  const dispatch = useAppDispatch()
-  const [incrementAmount, setIncrementAmount] = useState("2")
+  const count = useAppSelector(counterSlice.selectors.selectCount);
+  const dispatch = useAppDispatch();
+  const [incrementAmount, setIncrementAmount] = useState("2");
 
-  const incrementValue = Number(incrementAmount) || 0
+  const incrementValue = Number(incrementAmount) || 0;
 
   return (
     <div>
@@ -43,7 +39,9 @@ export function Counter() {
         />
         <button
           className={styles.button}
-          onClick={() => dispatch(counterSlice.actions.incrementByAmount(incrementValue))}
+          onClick={() =>
+            dispatch(counterSlice.actions.incrementByAmount(incrementValue))
+          }
         >
           Add Amount
         </button>
@@ -61,5 +59,5 @@ export function Counter() {
         </button>
       </div>
     </div>
-  )
+  );
 }
