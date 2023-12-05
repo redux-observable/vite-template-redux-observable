@@ -1,8 +1,8 @@
 import { createAction, createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { AppThunk } from "../../app/store"
+import { RootState } from "../../app/store"
 import { fetchCount } from "./counterAPI"
 import { Epic } from "redux-observable"
-import { catchError, filter, map, mergeMap, of, startWith } from "rxjs"
+import { catchError, filter, map, mergeMap, of, startWith, withLatestFrom } from "rxjs"
 
 export interface CounterState {
   value: number
@@ -26,7 +26,7 @@ export const incrementAsyncEpic: Epic = (action$) =>
     filter(incrementAsync.match),
     // map this action to a new stream
     mergeMap((action) =>
-      // call fetchCount and turn the promise into an observable
+      // make the 'api call'
       fetchCount(action.payload).pipe(
         // map the response to a new action
         map((count) => incrementAsyncFulfilled(count)),
@@ -81,13 +81,15 @@ export const counterSlice = createSlice({
   },
 })
 
-// We can also write thunks by hand, which may contain both sync and async logic.
+// We can also read state in epics.
 // Here's an example of conditionally dispatching actions based on current state.
-export const incrementIfOdd =
-  (amount: number): AppThunk =>
-  (dispatch, getState) => {
-    const currentValue = counterSlice.selectors.selectCount(getState())
-    if (currentValue % 2 === 1) {
-      dispatch(counterSlice.actions.incrementByAmount(amount))
-    }
-  }
+export const incrementIfOdd = createAction<number>("counter/incrementIfOdd")
+
+export const incrementIfOddEpic: Epic<unknown, unknown, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter(incrementIfOdd.match),
+    withLatestFrom(state$),
+    map(([action, state]) => [action.payload, counterSlice.selectors.selectCount(state)] as const),
+    filter(([amount, currentValue]) => currentValue % 2 === 1),
+    map(([amount]) => counterSlice.actions.incrementByAmount(amount)),
+  )
