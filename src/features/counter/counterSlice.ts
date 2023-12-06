@@ -39,6 +39,7 @@ export const incrementAsyncEpic: AppEpic = (action$) =>
         startWith(incrementAsyncPending()),
         // continue with this observable in case of an error
         // the mocked api doesn't throw errors, but a real api probably would
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         catchError((_error: unknown) => of(incrementAsyncRejected("failed")))
       )
     )
